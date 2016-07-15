@@ -5,21 +5,26 @@ var css = require('dom-css')
 var insertcss = require('insert-css')
 var codemirror = require('codemirror')
 require('codemirror/mode/javascript/javascript')
-var moduleBundler = require('browser-module-sandbox')
-var createEmitter = require('namespace-emitter')
+var createBundler = require('wzrd-bundler')
 var debounce = require('lodash.debounce')
+var makeIframe = require('make-iframe')
 
 module.exports = function createSandbox (content, options) {
   options = options || {}
   options.editor = options.editor || {}
   options.bundler = options.bundler || {}
-  var iframe = document.createElement('iframe')
-  var input = html`<div class="interactive-sandbox-input" onload=${onload}></div>`
-  var output = html`<div class="interactive-sandbox-output"></div>`
-  var sandbox = createEmitter()
+  var input = html`<div class="interactive-sandbox-input" onload=${onloadInput}></div>`
+  var output = html`<div class="interactive-sandbox-output" onload=${onloadOutput}></div>`
+  var bundler = createBundler()
+  var sandbox = {}
+  var iframe
 
-  function onload (el) {
+  function onloadInput (el) {
     editor.setValue(content)
+  }
+
+  function onloadOutput (el) {
+    iframe = makeIframe('', { container: output })
   }
 
   insertcss(fs.readFileSync(path.join(__dirname, 'css', 'codemirror.css')))
@@ -37,25 +42,17 @@ module.exports = function createSandbox (content, options) {
     theme: options.editor.theme || 'tomorrow-night'
   })
 
-  var bundler = moduleBundler({
-    name: options.name,
-    cdn: options.cdv || 'http://wzrd.in',
-    container: output,
-    iframe: iframe
-  })
-
-  bundler.on('bundleEnd', function (data) {
-    console.log('bundler bundleEnd')
-  })
-
   function run () {
-    console.log('run')
-    bundler.bundle(editor.getValue())
+    bundler(editor.getValue(), options.modules, function (err, bundle, packages) {
+      output.removeChild(iframe.iframe)
+      iframe = makeIframe(bundle, { container: output })
+    })
   }
 
-  var debounced = debounce(run, 250)
+  var debounced = debounce(run, 300)
 
   editor.on('change', function (data) {
+    console.log('change')
     debounced()
   })
 
