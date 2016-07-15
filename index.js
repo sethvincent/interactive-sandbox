@@ -52,7 +52,6 @@ module.exports = function createSandbox (content, options) {
   var debounced = debounce(run, 300)
 
   editor.on('change', function (data) {
-    console.log('change')
     debounced()
   })
 
