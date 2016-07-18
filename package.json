@@ -1,7 +1,7 @@
 {
   "name": "interactive-sandbox",
   "version": "1.0.0",
-  "description": "create interactive code examples that are editable and that pull dependencies from npm",
+  "description": "Create editable, interactive code examples for the browser that bundle dependencies from npm",
   "main": "index.js",
   "scripts": {
     "lint": "standard",

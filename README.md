@@ -1,6 +1,6 @@
 # interactive-sandbox
 
-Create interactive code examples for the browser that bundle modules from npm.
+Create editable, interactive code examples for the browser that bundle dependencies from npm.
 
 ## Install
 
