@@ -7,7 +7,7 @@ var codemirror = require('codemirror')
 require('codemirror/mode/javascript/javascript')
 var createBundler = require('wzrd-bundler')
 var debounce = require('lodash.debounce')
-var makeIframe = require('make-iframe')
+var createIframe = require('create-iframe')
 
 module.exports = function createSandbox (content, options) {
   options = options || {}
@@ -15,7 +15,7 @@ module.exports = function createSandbox (content, options) {
   options.bundler = options.bundler || {}
   var input = html`<div class="interactive-sandbox-input" onload=${onloadInput}></div>`
   var output = html`<div class="interactive-sandbox-output" onload=${onloadOutput}></div>`
-  var bundler = createBundler()
+  var bundler = createBundler(options.bundler)
   var sandbox = {}
   var iframe
 
@@ -24,7 +24,7 @@ module.exports = function createSandbox (content, options) {
   }
 
   function onloadOutput (el) {
-    iframe = makeIframe('', { container: output })
+    iframe = createIframe('', { container: output })
   }
 
   insertcss(fs.readFileSync(path.join(__dirname, 'css', 'codemirror.css')))
@@ -36,16 +36,15 @@ module.exports = function createSandbox (content, options) {
     backgroundColor: '#333'
   })
 
-  var editor = codemirror(input, {
-    autofocus: true, 
-    mode: options.editor.mode || 'javascript', 
-    theme: options.editor.theme || 'tomorrow-night'
-  })
+  options.editor.autofocus = true
+  options.editor.mode = options.editor.mode || 'javascript'
+  options.editor.theme = options.editor.theme || 'tomorrow-night'
+  var editor = codemirror(input, options.editor)
 
   function run () {
     bundler(editor.getValue(), options.modules, function (err, bundle, packages) {
       output.removeChild(iframe.iframe)
-      iframe = makeIframe(bundle, { container: output })
+      iframe = createIframe(bundle, { container: output })
     })
   }
 
