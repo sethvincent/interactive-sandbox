@@ -15,6 +15,7 @@ module.exports = function createSandbox (content, options) {
   options.bundler = options.bundler || {}
   var input = html`<div class="interactive-sandbox-input" onload=${onloadInput}></div>`
   var output = html`<div class="interactive-sandbox-output" onload=${onloadOutput}></div>`
+  var onChange = options.onChange || function () {}
   var bundler = createBundler(options.bundler)
   var sandbox = {}
   var iframe
@@ -28,13 +29,22 @@ module.exports = function createSandbox (content, options) {
   }
 
   insertcss(fs.readFileSync(path.join(__dirname, 'css', 'codemirror.css')))
-  insertcss(fs.readFileSync(path.join(__dirname, 'css', 'tomorrow-night.css')))
+
+  if (!options.editor.theme) {
+    insertcss(fs.readFileSync(path.join(__dirname, 'css', 'tomorrow-night.css')))
+  }
 
   css(input, {
-    width: options.width || '100%',
-    height: options.width || 400,
+    width: options.editor.width || '100%',
+    height: options.editor.height,
     backgroundColor: '#333'
   })
+
+  if (options.hideOutput) {
+    css(output, {
+      display: 'none'
+    })
+  }
 
   options.editor.autofocus = true
   options.editor.mode = options.editor.mode || 'javascript'
@@ -52,9 +62,14 @@ module.exports = function createSandbox (content, options) {
 
   editor.on('change', function (data) {
     debounced()
+    onChange(editor.getValue())
   })
 
   function render () {
+    setTimeout(function () {
+      editor.refresh()
+    }, 0)
+
     return html`
      <div class="interactive-sandbox">
      ${input}
