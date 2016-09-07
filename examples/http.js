@@ -14,7 +14,10 @@ request('http://boundaries.seattle.io/boundaries', function (err, res, body) {
 var sandbox = createSandbox(code, {
   // modules: {
   //   xhr: local('xhr')
-  // }
+  // },
+  onChange: function (changedCode) {
+    console.log('changedCode', changedCode)
+  }
 })
 
 document.body.appendChild(sandbox.render())

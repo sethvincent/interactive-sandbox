@@ -25,7 +25,11 @@ request('http://boundaries.seattle.io/boundaries', function (err, res, body) {
 })
 `
 
-var sandbox = createSandbox(code)
+var sandbox = createSandbox(code, {
+  onChange: function (changedCode) {
+    console.log('changedCode', changedCode)
+  }
+})
 
 document.body.appendChild(sandbox.render())
 ```
