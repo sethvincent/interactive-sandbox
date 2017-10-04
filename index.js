@@ -28,10 +28,10 @@ module.exports = function createSandbox (content, options) {
     iframe = createIframe('', { container: output })
   }
 
-  insertcss(fs.readFileSync(path.join(__dirname, 'css', 'codemirror.css')))
+  insertcss(fs.readFileSync(path.join(__dirname, 'css', 'codemirror.css'), 'utf8'))
 
   if (!options.editor.theme) {
-    insertcss(fs.readFileSync(path.join(__dirname, 'css', 'tomorrow-night.css')))
+    insertcss(fs.readFileSync(path.join(__dirname, 'css', 'tomorrow-night.css'), 'utf8'))
   }
 
   css(input, {
